@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+  webserver:
+    image: node:12.18.2
+    tty: true
+    ports:
+      - "82:3000"
+    volumes:
+      - .:/opt/app
+    environment:
+      - NODE_ENV=dev
+    networks:
+      - app-network
+  
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    volumes:
+      - .data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=secret
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=0
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=app
+      - PMA_PASSWORD=secret
+    ports:
+      - "81:80"
+    volumes:
+      - /sessions
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    volumes:
+    - .data/minio/:/data
+    ports:
+    - "9000:9000"
+    environment:
+    - MINIO_ACCESS_KEY=app
+    - MINIO_SECRET_KEY=secretsecret
+    - MINIO_REGION=us-west-2
+    command: server /data
+    networks:
+    - app-network
+
+  mc:
+    image: minio/mc
+    depends_on:
+    - minio
+    networks:
+    - app-network
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host rm local;
+      /usr/bin/mc config host add local http://minio:9000 app secretsecret --api S3v4 --lookup auto;
+      /usr/bin/mc mb local/bkZalo;
+      /usr/bin/mc policy set public local/bkZalo;
+      exit 0;
+      "    
+
+networks:
+  app-network:
+    driver: bridge
