@@ -10,7 +10,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: [process.env.FRONT_END_URL, 'http://localhost:8080'],
+    origin: [process.env.FRONT_END_URL, 'http://localhost:19006'],
     credentials: true,
   },
 });

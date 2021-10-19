@@ -8,7 +8,7 @@ const me = async (req, res) => {
     gender: req.user.gender,
   };
 
-  return res.status(200).send(...responseData);
+  return res.status(200).send(responseData);
 };
 
 module.exports = me;

@@ -12,7 +12,6 @@ async function validation(credentials) {
 
     return await Joi.validate(credentials, schema);
   } catch (error) {
-    // console.log(error, 1111111);
     return abort(400, 'Params error');
   }
 }
