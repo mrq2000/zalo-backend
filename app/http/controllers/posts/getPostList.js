@@ -2,14 +2,14 @@ const Joi = require('joi');
 
 const postsService = require('../../services/posts');
 const { abort } = require('../../../helpers/error');
-const likePostTypeEnum = require('../../../enums/likePostType');
 
 async function validation(postInfo) {
   try {
     const schema = Joi.object().keys({
       userId: Joi.number().integer().min(1).required(),
-      postId: Joi.number().integer().min(1).required(),
-      type: Joi.valid(likePostTypeEnum.getValues()).required(),
+      last_id: Joi.number().integer().required(),
+      count: Joi.number().integer().required(),
+      index: Joi.number().integer().required(),
     });
 
     return await Joi.validate(postInfo, schema);
@@ -18,16 +18,21 @@ async function validation(postInfo) {
   }
 }
 
-async function likePost(req, res) {
+async function getPostList(req, res) {
   const postInfo = {
     userId: req.user.id,
-    postId: Number(req.params.postId),
-    type: req.body.type,
+    last_id: req.query.last_id,
+    count: req.query.count,
+    index: req.query.index,
   };
 
   await validation(postInfo);
-  await postsService.likePost(postInfo);
-  return res.status(201).send();
+
+  const data = await postsService.getPostList(postInfo);
+  return res.status(200).send({
+    code: 10000,
+    data,
+  });
 }
 
-module.exports = likePost;
+module.exports = getPostList;

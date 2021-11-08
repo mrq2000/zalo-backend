@@ -14,7 +14,7 @@ async function validation(userInfo) {
 
     return await Joi.validate(userInfo, schema);
   } catch (error) {
-    return abort(400, 'Params error');
+    return abort(400, 'Params error', 1004);
   }
 }
 async function getUserPosts(req, res) {

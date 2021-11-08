@@ -1,7 +1,7 @@
 const me = async (req, res) => {
   const responseData = {
     id: req.user.id,
-    phone_number: req.user.phone_number,
+    phonenumber: req.user.phonenumber,
     full_name: req.user.full_name,
     avatar_url: req.user.avatar_url,
     status: req.user.status,

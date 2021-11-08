@@ -14,7 +14,7 @@ async function validation(friendInfo) {
 
     return await Joi.validate(friendInfo, schema);
   } catch (error) {
-    return abort(400, 'Params error');
+    return abort(400, 'Params error', 1004);
   }
 }
 

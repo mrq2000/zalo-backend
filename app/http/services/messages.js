@@ -13,7 +13,7 @@ exports.getFriendMessages = async ({
     .orWhere((builder) => builder.where('sender_id', friendId).andWhere('receiver_id', userId))
     .orderBy('id', 'desc')
     .limit(limit)
-    .select('id', 'content', 'sender_id', 'created_at');
+    .select('id', 'described', 'sender_id', 'created_at');
 
   const response = await messagesQuery;
 

@@ -11,11 +11,11 @@ class Post extends Model {
     const User = require('./User');
 
     return {
-      user: {
+      author: {
         relation: Model.HasOneRelation,
         modelClass: User,
         join: {
-          from: 'posts.user_id',
+          from: 'posts.author_id',
           to: 'users.id',
         },
       },
@@ -27,7 +27,7 @@ class Post extends Model {
           to: 'like_post.post_id',
         },
       },
-      me: {
+      meLike: {
         relation: Model.HasOneRelation,
         modelClass: LikePost,
         join: {

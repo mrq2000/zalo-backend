@@ -12,7 +12,7 @@ async function validation(postInfo) {
 
     return await Joi.validate(postInfo, schema);
   } catch (error) {
-    return abort(400, 'Params error');
+    return abort(400, 'Params error', 1004);
   }
 }
 

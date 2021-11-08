@@ -14,7 +14,7 @@ async function validation(searchInfo) {
 
     return await Joi.validate(searchInfo, schema);
   } catch (error) {
-    return abort(400, 'Params error');
+    return abort(400, 'Params error', 1004);
   }
 }
 

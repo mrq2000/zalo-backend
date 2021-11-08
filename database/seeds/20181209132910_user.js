@@ -7,7 +7,7 @@ const password = bcrypt.hashSync('123456');
 
 exports.seed = async (knex) => {
   await knex('users').insert([{
-    phone_number: '111111111',
+    phonenumber: '111111111',
     password,
     full_name: 'Bot 1',
     gender: userGenderEnum.MALE,

@@ -1,38 +1,55 @@
-const { Post, LikePost } = require('../../models');
-const { abort } = require('../../helpers/error');
-const postStatusEnum = require('../../enums/postStatus');
+const { transaction } = require('objection');
 
-exports.addPost = async ({ userId, content, type }) => {
-  try {
-    await Post.query().insert({
-      user_id: userId,
-      content,
-      type,
-      status: postStatusEnum.OPEN,
-    });
-  } catch (error) {
-    abort(400, 'Cannot add post');
-  }
+const { Post, LikePost } = require('../../models');
+const postStatusEnum = require('../../enums/postStatus');
+const likePostType = require('../../enums/likePostType');
+const { abort } = require('../../helpers/error');
+
+exports.addPost = async ({
+  userId, described, image, video,
+}) => {
+  const post = await Post.query().insert({
+    author_id: userId,
+    described,
+    image,
+    video,
+  });
+
+  return { id: post.id };
 };
 
-exports.getMyPosts = async ({ userId, limit, offset }) => {
+exports.getMyPosts = async ({
+  userId, count, last_id,
+}) => {
   const posts = await Post.query()
-    .where({ user_id: userId })
+    .where({ author_id: userId })
+    .where('id', '<', last_id)
     .andWhereNot('status', postStatusEnum.CLOSED)
-    .withGraphFetched('likes')
-    .modifyGraph('likes', (builder) => {
-      builder.whereNot('user_id', userId).select('id', 'type');
-    })
-    .withGraphFetched('likes.user')
-    .modifyGraph('likes.user', (builder) => {
-      builder.select('id', 'full_name');
-    })
     .withGraphFetched('me')
     .modifyGraph('me', (builder) => {
-      builder.where('user_id', userId);
+      builder.where('author_id', userId);
     })
-    .limit(limit)
-    .offset(offset)
+    .limit(count)
+    .orderBy('id', 'desc');
+
+  return posts;
+};
+
+exports.getPostList = async ({
+  userId, count, last_id, index,
+}) => {
+  const posts = await Post.query()
+    .where((builder) => builder.where('id', '<', last_id).orWhere('id', '>', index))
+    .andWhereNot('status', postStatusEnum.CLOSED)
+    .withGraphFetched('author')
+    .modifyGraph('author', (builder) => {
+      builder.select('id', 'avatar_url', 'full_name');
+    })
+    .withGraphFetched('meLike')
+    .modifyGraph('meLike', (builder) => {
+      builder.where('author_id', userId);
+    })
+    .limit(count)
     .orderBy('id', 'desc');
 
   return posts;
@@ -41,8 +58,27 @@ exports.getMyPosts = async ({ userId, limit, offset }) => {
 exports.likePost = async ({
   type, postId, userId,
 }) => {
-  await LikePost.knexQuery()
-    .insert({ type, post_id: postId, user_id: userId })
-    .onConflict(['user_id', 'post_id'])
-    .merge();
+  try {
+    await transaction(LikePost, Post, async (LikePostTrx, PostTrx) => {
+      const likeInfo = await LikePost.query().where({ post_id: postId, user_id: userId });
+
+      if (!likeInfo) {
+        if (type === likePostType.LIKE) {
+          await PostTrx.query().increment('like_count', 1);
+          await LikePostTrx.query().insert({
+            type, post_id: postId, user_id: userId,
+          });
+        }
+      } else {
+        if (likeInfo.type === type) return;
+        const increase = type === likePostType.LIKE ? 1 : -1;
+        await PostTrx.query().increment('like_count', increase);
+        await LikePostTrx.query().update({
+          type,
+        });
+      }
+    });
+  } catch (error) {
+    abort(500, 'Cannot update your avatar');
+  }
 };

@@ -3,5 +3,6 @@ module.exports = {
   plugins: [],
   rules: {
     'max-len': 0,
+    'camelcase': 0
   },
 };

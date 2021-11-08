@@ -9,7 +9,7 @@ exports.newMessage = async ({ token, userId, message }) => {
     await Message.query().insert({
       sender_id: user.id,
       receiver_id: userId,
-      content: message,
+      described: message,
     });
 
     return true;

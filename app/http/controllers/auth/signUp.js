@@ -2,40 +2,34 @@ const Joi = require('joi');
 
 const authService = require('../../services/auth');
 const { abort } = require('../../../helpers/error');
-const genderEnums = require('../../../enums/gender');
 
 async function validation(userInfo) {
   try {
     const schema = Joi.object().keys({
-      providerAccessToken: Joi.string().required(),
-      fullName: Joi.string().max(127).required(),
-      birthday: Joi.date().required(),
-      gender: Joi.valid(genderEnums.getValues()).required(),
-      province: Joi.string().max(63).required(),
-      district: Joi.string().max(63).required(),
-      location: Joi.string().max(255).allow(null),
+      phonenumber: Joi.string().required(),
+      password: Joi.string().required(),
+      uuid: Joi.string().require(),
     });
 
     return await Joi.validate(userInfo, schema);
   } catch (error) {
-    return abort(400, 'Params error');
+    return abort(400, 'Params error', 1004);
   }
 }
 
-async function signIn(req, res) {
+async function signUp(req, res) {
   const userInfo = {
-    providerAccessToken: req.body.providerAccessToken,
-    fullName: req.body.fullName,
-    gender: req.body.gender,
-    birthday: req.body.birthday,
-    province: req.body.province,
-    district: req.body.district,
-    location: req.body.location,
+    phonenumber: req.body.phonenumber,
+    password: req.body.password,
+    uuid: req.body.uuid,
   };
   await validation(userInfo);
 
-  const responseData = await authService.signUp(userInfo);
-  return res.status(200).send(responseData);
+  const data = await authService.signUp(userInfo);
+  return res.status(200).send({
+    code: 1000,
+    data,
+  });
 }
 
-module.exports = signIn;
+module.exports = signUp;

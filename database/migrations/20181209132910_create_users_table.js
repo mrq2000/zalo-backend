@@ -1,7 +1,7 @@
 exports.up = async (knex) => {
   await knex.schema.createTable('users', (table) => {
     table.increments('id');
-    table.string('phone_number', 15).notNullable();
+    table.string('phonenumber', 15).notNullable();
     table.string('password', 127).notNullable();
     table.string('full_name', 127).collate('utf8_general_ci').notNullable();
     table.tinyint('gender', 1).unsigned();
@@ -12,10 +12,11 @@ exports.up = async (knex) => {
     table.string('cover_url', 255).collate('utf8_general_ci');
 
     table.text('device');
+    table.text('current_token');
 
     table.timestamps(true, true);
 
-    table.unique(['phone_number'], 'phone_number');
+    table.unique(['phonenumber'], 'phonenumber');
   });
 };
 
