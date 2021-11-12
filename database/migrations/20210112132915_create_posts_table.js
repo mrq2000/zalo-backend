@@ -4,8 +4,8 @@ exports.up = async (knex) => {
   await knex.schema.createTable('posts', (table) => {
     table.increments('id');
     table.text('described').collate('utf8_general_ci');
-    table.text('images').collate('utf8_general_ci');
-    table.text('videos').collate('utf8_general_ci');
+    table.text('image').collate('utf8_general_ci');
+    table.text('video').collate('utf8_general_ci');
 
     table.integer('author_id', 1).unsigned().references('users.id').notNullable();
     table.tinyint('status', 1).unsigned().notNullable().default(postStatus.OPEN);

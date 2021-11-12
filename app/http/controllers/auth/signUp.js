@@ -6,9 +6,9 @@ const { abort } = require('../../../helpers/error');
 async function validation(userInfo) {
   try {
     const schema = Joi.object().keys({
-      phonenumber: Joi.string().required(),
-      password: Joi.string().required(),
-      uuid: Joi.string().require(),
+      phonenumber: Joi.string().min(8).required(),
+      password: Joi.string().min(6).required(),
+      uuid: Joi.string().required(),
     });
 
     return await Joi.validate(userInfo, schema);

@@ -3,7 +3,7 @@ exports.up = async (knex) => {
     table.increments('id');
     table.string('phonenumber', 15).notNullable();
     table.string('password', 127).notNullable();
-    table.string('full_name', 127).collate('utf8_general_ci').notNullable();
+    table.string('full_name', 127).collate('utf8_general_ci');
     table.tinyint('gender', 1).unsigned();
     table.date('birthday');
     table.tinyint('status', 1).unsigned().notNullable();

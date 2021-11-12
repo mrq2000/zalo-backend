@@ -25,7 +25,7 @@ exports.signUp = async ({ phonenumber, password }) => {
   if (user) return abort(400, 'User existed', 9996);
 
   const userInfo = await User.query().insert({
-    phonenumber, password,
+    phonenumber, password, status: userStatusEnum.INACTIVE,
   });
 
   const accessToken = jwt.generate({ userId: userInfo.id });

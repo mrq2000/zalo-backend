@@ -4,16 +4,15 @@ const { FriendRequest, User } = require('../../models');
 const friendRequestStatus = require('../../enums/friendRequestStatus');
 
 exports.getFriends = async (userId) => {
-  const [{ 'count(`id`)': total }] = await FriendRequest.query()
+  const friendQuery = FriendRequest.query()
     .where('status', friendRequestStatus.ACCEPTED)
     .andWhere((builder) => builder.where('sender_id', userId)
-      .orWhere('receiver_id', userId))
+      .orWhere('receiver_id', userId));
+
+  const [{ 'count(`id`)': total }] = await friendQuery
     .count('id');
 
-  const previewFriends = await FriendRequest.query()
-    .where('friend_requests.status', friendRequestStatus.ACCEPTED)
-    .andWhere((builder) => builder.where('sender_id', userId)
-      .orWhere('receiver_id', userId))
+  const previewFriends = await friendQuery
     .limit(9)
     .orderBy('friend_requests.id', 'desc')
     .select(raw(`CASE sender_id WHEN ${userId} THEN receiver_id  ELSE sender_id END as friendId`));
@@ -24,6 +23,20 @@ exports.getFriends = async (userId) => {
     .select('full_name', 'avatar_url', 'id');
 
   return { friends: { total, data: friends } };
+};
+
+exports.getFriendId = async (userId) => {
+  const previewFriends = await FriendRequest.query()
+    .where('friend_requests.status', friendRequestStatus.ACCEPTED)
+    .andWhere((builder) => builder.where('sender_id', userId)
+      .orWhere('receiver_id', userId))
+    .limit(9)
+    .orderBy('friend_requests.id', 'desc')
+    .select(raw(`CASE sender_id WHEN ${userId} THEN receiver_id  ELSE sender_id END as friendId`));
+
+  const previewFriendIds = previewFriends.map((friend) => friend.friendId);
+
+  return previewFriendIds;
 };
 
 exports.myRequest = async ({ userId }) => {

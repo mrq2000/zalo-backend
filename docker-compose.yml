@@ -67,8 +67,8 @@ services:
       /bin/sh -c "
       /usr/bin/mc config host rm local;
       /usr/bin/mc config host add local http://minio:9000 app secretsecret --api S3v4 --lookup auto;
-      /usr/bin/mc mb local/bkZalo;
-      /usr/bin/mc policy set public local/bkZalo;
+      /usr/bin/mc mb local/bk-zalo;
+      /usr/bin/mc policy set public local/bk-zalo;
       exit 0;
       "    
 

@@ -16,6 +16,8 @@ async function checkImage(file, cb) {
 const uploadImage = (maxSize = 1000000, bucket = process.env.AWS_S3_BUCKET) => multer({
   storage: multerS3({
     s3,
+    acl: 'public-read',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     bucket,
     metadata(req, file, cb) {
       cb(null, { fieldName: file.fieldname });

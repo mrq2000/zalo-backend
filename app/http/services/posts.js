@@ -1,9 +1,13 @@
 const { transaction } = require('objection');
+const { raw } = require('objection');
 
-const { Post, LikePost } = require('../../models');
+const { Post, LikePost, FriendRequest } = require('../../models');
 const postStatusEnum = require('../../enums/postStatus');
 const likePostType = require('../../enums/likePostType');
+const friendRequestStatus = require('../../enums/friendRequestStatus');
 const { abort } = require('../../helpers/error');
+const knex = require('../../../database/knex');
+const { getFriendId } = require('./friends');
 
 exports.addPost = async ({
   userId, described, image, video,
@@ -21,13 +25,22 @@ exports.addPost = async ({
 exports.getMyPosts = async ({
   userId, count, last_id,
 }) => {
-  const posts = await Post.query()
-    .where({ author_id: userId })
-    .where('id', '<', last_id)
+  const postQuery = Post.query()
+    .where({ author_id: userId });
+
+  if (last_id) {
+    postQuery.where((builder) => builder.where('id', '<', last_id));
+  }
+
+  const posts = await postQuery
     .andWhereNot('status', postStatusEnum.CLOSED)
-    .withGraphFetched('me')
-    .modifyGraph('me', (builder) => {
-      builder.where('author_id', userId);
+    .withGraphFetched('author')
+    .modifyGraph('author', (builder) => {
+      builder.select('id', 'avatar_url', 'full_name');
+    })
+    .withGraphFetched('meLike')
+    .modifyGraph('meLike', (builder) => {
+      builder.where('user_id', userId).select(raw('CASE WHEN user_id is NULL THEN "false" ELSE "true" END as user_exists'));
     })
     .limit(count)
     .orderBy('id', 'desc');
@@ -38,8 +51,15 @@ exports.getMyPosts = async ({
 exports.getPostList = async ({
   userId, count, last_id, index,
 }) => {
-  const posts = await Post.query()
-    .where((builder) => builder.where('id', '<', last_id).orWhere('id', '>', index))
+  const friendIds = await getFriendId(userId);
+  const postQuery = Post.query()
+    .whereIn('author_id', friendIds);
+
+  if (last_id) {
+    postQuery.where((builder) => builder.where('id', '<', last_id));
+  }
+
+  const posts = await postQuery
     .andWhereNot('status', postStatusEnum.CLOSED)
     .withGraphFetched('author')
     .modifyGraph('author', (builder) => {
@@ -47,7 +67,7 @@ exports.getPostList = async ({
     })
     .withGraphFetched('meLike')
     .modifyGraph('meLike', (builder) => {
-      builder.where('author_id', userId);
+      builder.where('user_id', userId).select(raw('CASE WHEN user_id is NULL THEN "false" ELSE "true" END as user_exists'));
     })
     .limit(count)
     .orderBy('id', 'desc');

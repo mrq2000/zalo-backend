@@ -19,18 +19,20 @@ async function validation(postInfo) {
 }
 
 async function addPost(req, res) {
+  const images = req.files || [];
   const postInfo = {
     userId: req.user.id,
     described: req.body.described,
-    image: req.image,
+    image: JSON.stringify(images.map((image) => image.location)),
     video: req.video,
   };
 
   await validation(postInfo);
 
-  await postsService.addPost(postInfo);
+  const data = await postsService.addPost(postInfo);
   return res.status(201).send({
     code: 1000,
+    data,
   });
 }
 

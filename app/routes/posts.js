@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/posts', auth, uploadImage().array('image'), postsController.addPost);
 router.get('/my-posts', auth, postsController.getMyPosts);
+router.get('/posts', auth, postsController.getPostList);
 router.post('/posts/:postId/like', auth, postsController.likePost);
 
 module.exports = router;
