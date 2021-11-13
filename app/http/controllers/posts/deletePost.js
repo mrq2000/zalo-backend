@@ -8,9 +8,6 @@ async function validation(postInfo) {
     const schema = Joi.object().keys({
       userId: Joi.number().integer().min(1).required(),
       postId: Joi.number().integer().min(1).required(),
-      described: Joi.string().required(),
-      relate_comment_id: Joi.number().integer().min(1),
-      image_name: Joi.string(),
     });
 
     return await Joi.validate(postInfo, schema);
@@ -19,22 +16,19 @@ async function validation(postInfo) {
   }
 }
 
-async function commentPost(req, res) {
+async function deletePost(req, res) {
   const postInfo = {
     userId: req.user.id,
-    postId: req.body.postId,
-    described: req.body.described,
-    relate_comment_id: req.body.relate_comment_id,
-    image_name: req.body.image_name,
+    postId: req.body.id,
   };
 
   await validation(postInfo);
 
-  await postsService.commentPost(postInfo);
+  await postsService.deletePost(postInfo);
   return res.status(201).send({
     code: 10000,
     message: 'done',
   });
 }
 
-module.exports = commentPost;
+module.exports = deletePost;

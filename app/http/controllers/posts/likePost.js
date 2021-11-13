@@ -27,7 +27,10 @@ async function likePost(req, res) {
 
   await validation(postInfo);
   await postsService.likePost(postInfo);
-  return res.status(201).send();
+  return res.status(201).send({
+    code: 10000,
+    message: 'done',
+  });
 }
 
 module.exports = likePost;

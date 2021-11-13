@@ -8,5 +8,6 @@ router.post('/posts', auth, uploadImage().array('image'), postsController.addPos
 router.get('/my-posts', auth, postsController.getMyPosts);
 router.get('/posts', auth, postsController.getPostList);
 router.post('/posts/:postId/like', auth, postsController.likePost);
+router.delete('/posts', auth, postsController.deletePost);
 
 module.exports = router;

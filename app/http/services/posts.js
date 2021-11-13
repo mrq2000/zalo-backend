@@ -8,6 +8,7 @@ const friendRequestStatus = require('../../enums/friendRequestStatus');
 const { abort } = require('../../helpers/error');
 const knex = require('../../../database/knex');
 const { getFriendId } = require('./friends');
+const postStatus = require('../../enums/postStatus');
 
 exports.addPost = async ({
   userId, described, image, video,
@@ -101,4 +102,20 @@ exports.likePost = async ({
   } catch (error) {
     abort(500, 'Cannot update your avatar');
   }
+};
+
+exports.deletePost = async ({ postId, userId }) => {
+  const postInfo = await Post.query().where('id', '=', postId).first();
+
+  if (!postInfo) {
+    abort(400, 'Not found Post', 9992);
+  }
+
+  if (postInfo.author_id !== userId) {
+    abort(400, 'You not a author', 1009);
+  }
+
+  await Post.query().where('id', '=', postId).update({
+    status: postStatus.CLOSED,
+  });
 };
