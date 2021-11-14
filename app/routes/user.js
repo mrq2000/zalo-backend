@@ -11,6 +11,7 @@ router.post('/me/update-avatar', auth, uploadImage().single('mainAvatar'),
 router.get('/users/:userId/page', auth, userController.getUserPage);
 router.get('/users/:userId/posts', auth, userController.getUserPosts);
 
+router.get('/users/info/phonenumber', auth, userController.getUserInfoByPhoneNumber);
 router.get('/users/info/:userId', auth, userController.getUserInfo);
 router.get('/users/list', auth, userController.getUserList);
 

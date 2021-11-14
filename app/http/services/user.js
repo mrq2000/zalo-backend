@@ -78,7 +78,15 @@ exports.getUserPosts = async ({
 exports.getUserInfo = async (userId) => {
   const userInfo = await User.query().findById(userId).select('id', 'full_name', 'avatar_url');
 
-  if (!userInfo) abort('user not found');
+  if (!userInfo) abort(400, 'user not found', 995);
+
+  return userInfo;
+};
+
+exports.getUserInfoByPhoneNumber = async (phonenumber) => {
+  const userInfo = await User.query().where('phonenumber', phonenumber).select('id', 'full_name', 'avatar_url');
+
+  if (!userInfo) abort(400, 'user not found', 995);
 
   return userInfo;
 };
