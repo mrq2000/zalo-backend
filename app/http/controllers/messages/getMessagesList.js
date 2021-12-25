@@ -8,8 +8,7 @@ async function validation(friendInfo) {
     const schema = Joi.object().keys({
       userId: Joi.number().integer().min(1).required(),
       limit: Joi.number().integer().min(0).required(),
-      friendId: Joi.number().integer().min(1).required(),
-      cursor: Joi.number().integer().allow('null'),
+      offset: Joi.number().integer().min(0).required(),
     });
 
     return await Joi.validate(friendInfo, schema);
@@ -18,18 +17,16 @@ async function validation(friendInfo) {
   }
 }
 
-async function getFriendMessages(req, res) {
+async function getMessagesList(req, res) {
   const friendInfo = {
     userId: req.user.id,
-    friendId: Number(req.params.friendId),
-    cursor: req.query.cursor,
-    limit: Number(req.query.limit),
+    offset: req.query.offset,
+    limit: req.query.limit,
   };
 
-  await validation(friendInfo);
-
-  const responseData = await messagesService.getFriendMessages(friendInfo);
+  const formatParams = await validation(friendInfo);
+  const responseData = await messagesService.getMessagesList(formatParams);
   return res.status(200).send(responseData);
 }
 
-module.exports = getFriendMessages;
+module.exports = getMessagesList;

@@ -4,6 +4,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const { Model } = require('objection');
 const cors = require('cors');
+const { User } = require('./app/models');
+const jwt = require('./app/helpers/jwt');
 
 // setup socket.io
 const app = express();
@@ -42,26 +44,35 @@ app.use((req, res) => {
   res.send('Api not found');
 });
 
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth?.token;
+  const payload = jwt.parse(token);
+  if (payload === false) return false;
+  const userInfo = await User.query().findOne({ id: payload.userId });
+  if (!userInfo) return false;
+  socket.userInfo = userInfo;
+  next();
+});
+
 io.on('connection', (socket) => {
-  console.log(socket.handshake.token);
   console.log('Made socket connection');
 
-  socket.on('addUser', () => {
-    console.log('addUser');
+  const userInfo = socket.userInfo
+  addUser(socket.id, userInfo);
 
-    addUser(socket.id);
-  });
-
-  socket.on('new message', async (data, cb) => {
-    const isSuccess = await newMessage(data);
-    cb(isSuccess);
+  socket.on('newMessage', async (data, cb) => {
+    const res = await newMessage(userInfo, data);
+    cb(res.status);
+    if (res.user?.socketId) {
+      socket.to(res.user?.socketId).emit('newMessage', userInfo.id, res.newMessage);
+    }
   });
 
   socket.on('disconnection', () => {
     console.log('disconnect');
 
     socket.on('removeUser', async () => {
-      removeUser(socket.id);
+      removeUser(userInfo, socket.id);
     });
   });
 

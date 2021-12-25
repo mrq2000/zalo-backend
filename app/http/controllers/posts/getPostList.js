@@ -27,7 +27,6 @@ async function getPostList(req, res) {
   };
 
   await validation(postInfo);
-
   const data = await postsService.getPostList(postInfo);
   return res.status(200).send({
     code: 10000,

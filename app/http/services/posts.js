@@ -54,7 +54,7 @@ exports.getPostList = async ({
 }) => {
   const friendIds = await getFriendId(userId);
   const postQuery = Post.query()
-    .whereIn('author_id', friendIds);
+    .whereIn('author_id', [...friendIds, userId]);
 
   if (last_id) {
     postQuery.where((builder) => builder.where('id', '<', last_id));
@@ -72,7 +72,6 @@ exports.getPostList = async ({
     })
     .limit(count)
     .orderBy('id', 'desc');
-
   return posts;
 };
 
@@ -81,11 +80,11 @@ exports.likePost = async ({
 }) => {
   try {
     await transaction(LikePost, Post, async (LikePostTrx, PostTrx) => {
-      const likeInfo = await LikePost.query().where({ post_id: postId, user_id: userId });
+      const likeInfo = await LikePost.query().where({ post_id: postId, user_id: userId }).first();
 
       if (!likeInfo) {
         if (type === likePostType.LIKE) {
-          await PostTrx.query().increment('like_count', 1);
+          await PostTrx.query().where({ id: postId }).increment('like_count', 1).first();
           await LikePostTrx.query().insert({
             type, post_id: postId, user_id: userId,
           });
@@ -93,10 +92,10 @@ exports.likePost = async ({
       } else {
         if (likeInfo.type === type) return;
         const increase = type === likePostType.LIKE ? 1 : -1;
-        await PostTrx.query().increment('like_count', increase);
+        await PostTrx.query().where({ id: postId }).increment('like_count', increase).first();
         await LikePostTrx.query().update({
           type,
-        });
+        }).first();
       }
     });
   } catch (error) {

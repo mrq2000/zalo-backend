@@ -20,6 +20,7 @@ async function validation(postInfo) {
 
 async function addPost(req, res) {
   const images = req.files || [];
+
   const postInfo = {
     userId: req.user.id,
     described: req.body.described,

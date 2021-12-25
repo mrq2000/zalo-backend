@@ -1,19 +1,15 @@
 const { Message } = require('../app/models');
-const { getUser } = require('./user');
+const { getUserData } = require('./user');
 
-exports.newMessage = async ({ token, userId, message }) => {
-  const user = await getUser(token);
-  if (!user) return false;
-
+exports.newMessage = async (user, { receiver_id, message }) => {
   try {
-    await Message.query().insert({
+    const res = await Message.query().insert({
       sender_id: user.id,
-      receiver_id: userId,
-      described: message,
+      receiver_id,
+      content: message,
     });
-
-    return true;
+    return { status: true, user: getUserData(receiver_id), newMessage: res };
   } catch (e) {
-    return false;
+    return { status: false };
   }
 };

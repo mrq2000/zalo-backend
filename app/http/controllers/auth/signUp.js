@@ -6,9 +6,10 @@ const { abort } = require('../../../helpers/error');
 async function validation(userInfo) {
   try {
     const schema = Joi.object().keys({
-      phonenumber: Joi.string().min(8).required(),
-      password: Joi.string().min(6).required(),
-      uuid: Joi.string().required(),
+      phonenumber: Joi.string().required(),
+      password: Joi.string().required(),
+      fullName: Joi.string().required(),
+      uuid: Joi.string(),
     });
 
     return await Joi.validate(userInfo, schema);
@@ -21,6 +22,7 @@ async function signUp(req, res) {
   const userInfo = {
     phonenumber: req.body.phonenumber,
     password: req.body.password,
+    fullName: req.body.fullName,
     uuid: req.body.uuid,
   };
   await validation(userInfo);
