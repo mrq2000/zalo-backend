@@ -5,13 +5,12 @@ exports.getFriendMessages = async ({
   friendId, userId, cursor, limit,
 }) => {
   const messagesQuery = Message.query();
-
   if (cursor !== 'null') {
     messagesQuery.where('id', '<', cursor);
   }
 
-  messagesQuery.where((builder) => builder.where('sender_id', userId).andWhere('receiver_id', friendId))
-    .orWhere((builder) => builder.where('sender_id', friendId).andWhere('receiver_id', userId))
+  messagesQuery.where((builderFirst) => builderFirst.where((builder) => builder.where('sender_id', userId).andWhere('receiver_id', friendId))
+    .orWhere((builder) => builder.where('sender_id', friendId).andWhere('receiver_id', userId)))
     .orderBy('id', 'desc')
     .limit(limit)
     .select('id', 'content', 'sender_id', 'created_at');
