@@ -17,7 +17,6 @@ async function validation(userInfo) {
 async function getUserInfoByPhoneNumber(req, res) {
   const { phonenumber } = req.query;
   await validation({ phonenumber });
-
   const responseData = await userService.getUserInfoByPhoneNumber(phonenumber);
 
   return res.status(200).send(responseData);

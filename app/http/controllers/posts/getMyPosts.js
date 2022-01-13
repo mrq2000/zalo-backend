@@ -7,12 +7,13 @@ async function validation(postInfo) {
   try {
     const schema = Joi.object().keys({
       userId: Joi.number().integer().min(1).required(),
-      last_id: Joi.number().integer(),
+      last_id: Joi.number().integer().allow(''),
       count: Joi.number().integer().required(),
     });
 
     return await Joi.validate(postInfo, schema);
   } catch (error) {
+    console.log(error);
     return abort(400, 'Params error', 1004);
   }
 }

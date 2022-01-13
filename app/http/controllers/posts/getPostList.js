@@ -7,7 +7,7 @@ async function validation(postInfo) {
   try {
     const schema = Joi.object().keys({
       userId: Joi.number().integer().min(1).required(),
-      last_id: Joi.number().integer(),
+      last_id: Joi.number().integer().allow(''),
       count: Joi.number().integer().required(),
       index: Joi.number().integer(),
     });

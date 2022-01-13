@@ -9,12 +9,15 @@ exports.getFriends = async (userId) => {
     .andWhere((builder) => builder.where('sender_id', userId)
       .orWhere('receiver_id', userId));
 
-  const [{ 'count(`id`)': total }] = await friendQuery
+  const [{ 'count(`id`)': total }] = await FriendRequest.query()
+    .where('status', friendRequestStatus.ACCEPTED)
+    .andWhere((builder) => builder.where('sender_id', userId)
+      .orWhere('receiver_id', userId))
     .count('id');
 
   const previewFriends = await friendQuery
     .limit(9)
-    .orderBy('friend_requests.id', 'desc')
+    .orderBy('id', 'desc')
     .select(raw(`CASE sender_id WHEN ${userId} THEN receiver_id  ELSE sender_id END as friendId`));
 
   const previewFriendIds = previewFriends.map((friend) => friend.friendId);

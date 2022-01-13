@@ -7,7 +7,7 @@ async function validation(searchInfo) {
   try {
     const schema = Joi.object().keys({
       userId: Joi.number().integer().min(1).required(),
-      keyword: Joi.string().required(),
+      keyword: Joi.string().required().allow(''),
       offset: Joi.number().integer().required(),
       limit: Joi.number().integer().required(),
     });

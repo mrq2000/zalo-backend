@@ -85,7 +85,6 @@ exports.getUserInfo = async (userId) => {
 
 exports.getUserInfoByPhoneNumber = async (phonenumber) => {
   const userInfo = await User.query().where('phonenumber', phonenumber).first().select('id', 'full_name', 'avatar_url', 'phonenumber');
-
   if (!userInfo) abort(400, 'user not found', 995);
 
   return userInfo;

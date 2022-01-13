@@ -4,9 +4,7 @@ const { raw } = require('objection');
 const { Post, LikePost, FriendRequest } = require('../../models');
 const postStatusEnum = require('../../enums/postStatus');
 const likePostType = require('../../enums/likePostType');
-const friendRequestStatus = require('../../enums/friendRequestStatus');
 const { abort } = require('../../helpers/error');
-const knex = require('../../../database/knex');
 const { getFriendId } = require('./friends');
 const postStatus = require('../../enums/postStatus');
 
@@ -20,7 +18,7 @@ exports.addPost = async ({
     video,
   });
 
-  return { id: post.id };
+  return post;
 };
 
 exports.getMyPosts = async ({
@@ -56,7 +54,7 @@ exports.getPostList = async ({
   const postQuery = Post.query()
     .whereIn('author_id', [...friendIds, userId]);
 
-  if (last_id) {
+  if (last_id && last_id !== '') {
     postQuery.where((builder) => builder.where('id', '<', last_id));
   }
 

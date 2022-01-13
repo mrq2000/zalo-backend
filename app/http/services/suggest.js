@@ -55,6 +55,7 @@ exports.suggestUser = async ({
     .modifyGraph('meReceiveRequest', (builder) => {
       builder.where('sender_id', userId).select('id', 'status');
     })
+    .orderBy('id', 'desc')
     .limit(limit)
     .offset(offset);
 
