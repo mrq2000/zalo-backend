@@ -8,7 +8,7 @@ router.get('/my-page', auth, userController.getMyPage);
 router.post('/me/update-avatar', auth, uploadImage().single('mainAvatar'),
   userController.updateAvatar);
 
-router.get('/users/:userId/page', auth, userController.getUserPage);
+router.get('/users/:userId/info', auth, userController.getUserPage);
 router.get('/users/:userId/posts', auth, userController.getUserPosts);
 
 router.get('/users/info/phonenumber', userController.getUserInfoByPhoneNumber);

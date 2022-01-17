@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const postsService = require('../../services/posts');
+const notiService = require('../../services/notifications');
 const { abort } = require('../../../helpers/error');
 
 async function validation(postInfo) {
@@ -17,7 +17,7 @@ async function validation(postInfo) {
   }
 }
 
-async function getMyPosts(req, res) {
+async function getAllNoti(req, res) {
   const postInfo = {
     userId: req.user.id,
     last_id: req.query.last_id,
@@ -26,8 +26,8 @@ async function getMyPosts(req, res) {
 
   await validation(postInfo);
 
-  const response = await postsService.getMyPosts(postInfo);
+  const response = await notiService.getAllNoti(postInfo);
   return res.status(200).send(response);
 }
 
-module.exports = getMyPosts;
+module.exports = getAllNoti;

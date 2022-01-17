@@ -1,7 +1,7 @@
 const { transaction } = require('objection');
 const { raw } = require('objection');
 
-const { Post, LikePost, FriendRequest } = require('../../models');
+const { Post, LikePost } = require('../../models');
 const postStatusEnum = require('../../enums/postStatus');
 const likePostType = require('../../enums/likePostType');
 const { abort } = require('../../helpers/error');

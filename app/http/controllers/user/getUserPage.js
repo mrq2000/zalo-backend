@@ -1,7 +1,6 @@
 const Joi = require('joi');
 
 const userService = require('../../services/user');
-const friendService = require('../../services/friends');
 const { abort } = require('../../../helpers/error');
 
 async function validation(userInfo) {
@@ -25,9 +24,8 @@ async function getUserPage(req, res) {
   await validation(params);
 
   const responseData = await userService.getUserInformation(params);
-  const friendInfo = await friendService.getFriends(params.userId);
 
-  return res.status(200).send({ ...responseData, ...friendInfo });
+  return res.status(200).send({ ...responseData });
 }
 
 module.exports = getUserPage;

@@ -8,8 +8,8 @@ async function validation(userInfo) {
     const schema = Joi.object().keys({
       myId: Joi.number().integer().min(1).required(),
       userId: Joi.number().integer().min(1).required(),
-      offset: Joi.number().integer().required(),
-      limit: Joi.number().integer().required(),
+      last_id: Joi.number().integer().allow(''),
+      count: Joi.number().integer().required(),
     });
 
     return await Joi.validate(userInfo, schema);
@@ -20,8 +20,8 @@ async function validation(userInfo) {
 async function getUserPosts(req, res) {
   const userInfo = {
     userId: Number(req.params.userId),
-    offset: req.query.offset,
-    limit: req.query.limit,
+    last_id: req.query.last_id,
+    count: req.query.count,
     myId: req.user.id,
   };
 

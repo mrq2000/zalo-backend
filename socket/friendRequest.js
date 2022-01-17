@@ -1,6 +1,7 @@
 const { getUserData, getUser } = require('./user');
-const { FriendRequest } = require('../app/models');
+const { FriendRequest, Notification } = require('../app/models');
 const friendRequestStatus = require('../app/enums/friendRequestStatus');
+const notification = require('../app/enums/notification');
 
 exports.newFriendRequest = async ({ token, userId }) => {
   const me = await getUser(token);
@@ -11,6 +12,12 @@ exports.newFriendRequest = async ({ token, userId }) => {
       .insert({ sender_id: me.id, receiver_id: userId, status: friendRequestStatus.REQUEST })
       .onConflict(['sender_id', 'receiver_id'])
       .merge();
+
+    await Notification.query().insert({
+      status: notification.FRIEND_REQUEST,
+      content: userId,
+      image: '',
+    });
 
     if (user) {
       return { user, me };

@@ -4,7 +4,7 @@ const { Model } = require('objection');
 
 class Notifications extends Model {
   static get tableName() {
-    return 'messages';
+    return 'notifications';
   }
 
   static get relationMappings() {
@@ -16,7 +16,7 @@ class Notifications extends Model {
         modelClass: User,
         join: {
           from: 'users.id',
-          to: 'messages.owner_id',
+          to: 'notifications.owner_id',
         },
       },
     };
