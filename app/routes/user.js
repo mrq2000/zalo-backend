@@ -8,6 +8,8 @@ router.get('/my-page', auth, userController.getMyPage);
 router.post('/me/update-avatar', auth, uploadImage().single('mainAvatar'),
   userController.updateAvatar);
 
+router.post('/me/update-fullname', auth, userController.updateFullName);
+
 router.get('/users/:userId/info', auth, userController.getUserPage);
 router.get('/users/:userId/posts', auth, userController.getUserPosts);
 

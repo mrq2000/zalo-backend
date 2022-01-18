@@ -1,7 +1,7 @@
 const { transaction } = require('objection');
 const { raw } = require('objection');
 
-const { Post, LikePost } = require('../../models');
+const { Post, LikePost, Comment } = require('../../models');
 const postStatusEnum = require('../../enums/postStatus');
 const likePostType = require('../../enums/likePostType');
 const { abort } = require('../../helpers/error');
@@ -115,4 +115,43 @@ exports.deletePost = async ({ postId, userId }) => {
   await Post.query().where('id', '=', postId).update({
     status: postStatus.CLOSED,
   });
+};
+
+exports.getPostInfo = async ({ postId, userId }) => {
+  const friendIds = await getFriendId(userId);
+
+  const postInfo = await Post.query().where('id', '=', postId)
+    .andWhereNot('status', postStatusEnum.CLOSED)
+    .withGraphFetched('author')
+    .modifyGraph('author', (builder) => {
+      builder.select('id', 'avatar_url', 'full_name');
+    })
+    .withGraphFetched('meLike')
+    .modifyGraph('meLike', (builder) => {
+      builder.where('user_id', userId).select(raw('CASE WHEN user_id is NULL THEN "false" ELSE "true" END as user_exists'));
+    })
+    .first();
+
+  if (!postInfo) {
+    abort(400, 'Not found Post', 9992);
+  }
+
+  const comments = await Comment.query()
+    .where('post_id', '=', postId)
+    .whereIn('user_id', [...friendIds, userId])
+    .withGraphFetched('author')
+    .modifyGraph('author', (builder) => {
+      builder.select('id', 'avatar_url', 'full_name');
+    });
+
+  return {
+    postInfo, comments,
+  };
+};
+
+exports.commentPost = async ({ postId, userId, described }) => {
+  const comment = await Comment.query().insert({ described, user_id: userId, post_id: postId});
+  await Post.query().where({ id: postId }).increment('comment_count', 1).first();
+
+  return comment;
 };

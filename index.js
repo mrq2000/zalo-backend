@@ -77,26 +77,29 @@ io.on('connection', (socket) => {
   });
 
   // Friend Request
-  socket.on('newFriendRequest', async (data, cb) => {
-    const res = await newFriendRequest(data);
-
-    if (res.me) {
-      socket.to(res.user.socketId).emit('friendRequest', res.me);
+  socket.on('newFriendRequest', async (userReceiverId, cb) => {
+    const res = await newFriendRequest(userInfo, userReceiverId);
+  
+    if (res.status) cb(true);
+    else {
+      cb(false);
     }
 
-    if (res) cb(true);
-    cb(false);
+    if (res.user?.socketId) {
+      socket.to(res.user?.socketId).emit('newFriendRequest', userInfo.id);
+    }
   });
 
-  socket.on('acceptFriendRequest', async (data, cb) => {
-    const res = await acceptFriendRequest(data);
-
-    if (res.me) {
-      socket.to(res.user.socketId).emit('friendRequestAccept', res.me);
+  socket.on('acceptFriendRequest', async (senderId, cb) => {
+    const res = await acceptFriendRequest(userInfo, senderId);
+    if (res.status) cb(true);
+    else {
+      cb(false);
     }
 
-    if (res) cb(true);
-    cb(false);
+    if (res.user?.socketId) {
+      socket.to(res.user?.socketId).emit('acceptFriendRequest', userInfo.id);
+    }
   });
 });
 

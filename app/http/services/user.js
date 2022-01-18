@@ -17,22 +17,17 @@ exports.getMyInformation = async (userId) => {
 };
 
 exports.updateAvatar = async ({ userId, mainAvatar }) => {
-  try {
-    await transaction(User, Post, async (UserTrx, PostTrx) => {
-      await UserTrx.query().findById(userId)
-        .patch({
-          avatar_url: mainAvatar,
-        });
-      await PostTrx.query().insert({
-        user_id: userId,
-        type: postTypeEnum.PUBLIC,
-        status: postStatusEnum.OPEN,
-        image_name: mainAvatar,
-      });
+  await User.query().findById(userId)
+    .patch({
+      avatar_url: mainAvatar,
     });
-  } catch (error) {
-    abort(500, 'Cannot update your avatar');
-  }
+};
+
+exports.updateFullName = async ({ userId, fullName }) => {
+  await User.query().findById(userId)
+    .patch({
+      full_name: fullName,
+    });
 };
 
 exports.getUserInformation = async ({ userId, myId }) => {

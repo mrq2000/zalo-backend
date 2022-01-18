@@ -1,12 +1,12 @@
 const Joi = require('joi');
 
-const userService = require('../../services/user');
+const postsService = require('../../services/posts');
 const { abort } = require('../../../helpers/error');
 
 async function validation(postInfo) {
   try {
     const schema = Joi.object().keys({
-      mainAvatar: Joi.string().required(),
+      postId: Joi.number().integer().min(1).required(),
       userId: Joi.number().integer().min(1).required(),
     });
 
@@ -16,16 +16,15 @@ async function validation(postInfo) {
   }
 }
 
-async function updateAvatar(req, res) {
-  const avatarInfo = {
-    mainAvatar: req.file.location,
+async function getPostInfo(req, res) {
+  const postInfo = {
+    postId: req.params.postId,
     userId: req.user.id,
   };
+  await validation(postInfo);
 
-  await validation(avatarInfo);
-
-  await userService.updateAvatar(avatarInfo);
-  return res.status(200).send({ url: avatarInfo.mainAvatar });
+  const response = await postsService.getPostInfo(postInfo);
+  return res.status(200).send(response);
 }
 
-module.exports = updateAvatar;
+module.exports = getPostInfo;

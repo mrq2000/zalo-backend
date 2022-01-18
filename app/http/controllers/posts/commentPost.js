@@ -30,10 +30,12 @@ async function commentPost(req, res) {
 
   await validation(postInfo);
 
-  await postsService.commentPost(postInfo);
+  const response = await postsService.commentPost(postInfo);
+
   return res.status(201).send({
     code: 10000,
     message: 'done',
+    data: response,
   });
 }
 
